@@ -3,7 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+
 var dotenv = require('dotenv').config();
+
 // PUT and DELETE request handle.
 var methodOverride = require('method-override');
 
@@ -14,6 +16,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+// Override with the X-HTTP-Method-Override header in the request.
+app.use(methodOverride('X-HTTP-Method-Override'));
 
 // Logs.
 var logger = require('morgan');
