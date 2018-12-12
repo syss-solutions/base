@@ -2,25 +2,40 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var bodyParser = require('body-parser');
+var dotenv = require('dotenv').config();
+// PUT and DELETE request handle.
+var methodOverride = require('method-override');
+
+const environment = process.env.NODE_ENV; // development | production
+var stage = require('./config')[environment];
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
 
+// Logs.
+var logger = require('morgan');
+if (environment !== 'production') {
+  app.use(logger('dev'));
+}
+
+// configure app to use bodyParser(), this will let us get the data from a POST
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/api/v1', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -38,4 +53,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+app.listen(`${stage.port}`, () => {
+  console.log(`Server now listening at localhost: ${stage.port}`);
+});
 module.exports = app;
