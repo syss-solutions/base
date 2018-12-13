@@ -15,7 +15,28 @@ var stage = require('./config')[environment];
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+var helmet = require('helmet');
+var session = require('cookie-session');
+
 var app = express();
+
+// Security.
+app.use(helmet());
+app.set('trust proxy', 1) // trust first proxy
+const expiryDate = new Date(Date.now() + 60 * 60 * 1000 ); // 1 hour
+app.use(
+  session({
+	  name: process.env.COOKIE_NAME,
+		keys: [process.env.COOKIE_KEY1, process.env.COOKIE_KEY2],
+		cookie: { 
+      secure: true,
+			httpOnly: true,
+			domain: process.env.COOKIE_DOMAIN,
+			path: process.env.COOKIE_PATH,
+			expires: expiryDate
+		}
+	})
+);
 
 // Override with the X-HTTP-Method-Override header in the request.
 app.use(methodOverride('X-HTTP-Method-Override'));
